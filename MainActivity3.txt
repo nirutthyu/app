@@ -1,0 +1,318 @@
+﻿//firebase
+package com.example.firebase
+import android.content.ContentValues.TAG
+import android.os.Bundle
+import android.util.Log
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
+class MainActivity : AppCompatActivity() {
+    private lateinit var name:EditText
+    private lateinit var db:FirebaseFirestore
+    private lateinit var roll:EditText
+    private lateinit var result:TextView
+    private lateinit var result1:TextView
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_main)
+        db = Firebase.firestore
+        val add=findViewById<Button>(R.id.add)
+        val delete=findViewById<Button>(R.id.delete)
+        val clear=findViewById<Button>(R.id.clear)
+        result = findViewById(R.id.result)
+        result1 = findViewById(R.id.result2)
+        name=findViewById(R.id.name)
+        roll=findViewById(R.id.roll)
+        add.setOnClickListener(){
+            addData()
+        }
+        delete.setOnClickListener(){
+            deleteData()
+        }
+        clear.setOnClickListener() {
+            updateData()
+        }
+    }
+    private fun addData(){
+        val name=name.text.toString()
+        val roll=roll.text.toString()
+        val user = hashMapOf(
+            "name" to name,
+            "roll" to roll
+        )
+// Add a new document with a generated ID
+        db.collection("users")
+            .add(user)
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error adding document", e)
+            }
+        viewData()
+    }
+private fun deleteData() {
+    val nameToDelete = name.text.toString()
+    if (nameToDelete.isNotEmpty()) {
+        db.collection("users")
+            .whereEqualTo("name", nameToDelete)
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    db.collection("users").document(document.id)
+                        .delete()
+                        .addOnSuccessListener {
+                            Log.d(TAG, "DocumentSnapshot successfully deleted!")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w(TAG, "Error deleting document", e)
+                        }
+                }
+                viewData()
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents for deletion", exception)
+            }
+    }
+}
+    private fun updateData() {
+        val nameToUpdate = name.text.toString()
+        val newRoll = roll.text.toString()
+        if (nameToUpdate.isNotEmpty()) {
+            db.collection("users")
+                .whereEqualTo("name", nameToUpdate)
+                .get()
+                .addOnSuccessListener { documents ->
+                    for (document in documents) {
+                        db.collection("users").document(document.id)
+                            .update("roll", newRoll)
+                            .addOnSuccessListener {
+                                Log.d(TAG, "DocumentSnapshot successfully updated!")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w(TAG, "Error updating document", e)
+                            }
+                    }
+                    viewData()
+                }
+                .addOnFailureListener { exception ->
+                    Log.w(TAG, "Error getting documents for update", exception)
+                }
+        }
+    }
+    private fun viewData() {
+        val data = StringBuilder()
+        db.collection("users")
+            .get()
+            .addOnSuccessListener { doc ->
+                for (document in doc) {
+                    val nameval = document.getString("name")
+                    val rollval = document.getString("roll")
+                    data.append("Name: $nameval, Roll: $rollval\n")
+                    Log.d(TAG, "${document.id} => ${document.data}")
+                }
+                result.text = data.toString()
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Error getting documents.", exception)
+            }
+    }
+}
+
+
+
+
+//Multimedia
+vdo = findViewById(R.id.videoView)
+vdo.setVideoURI(Uri.parse("android.resource://$packageName/${R.raw.vdo1}"))
+
+
+mediaPlayer=MediaPlayer.create(this,R.raw.audio1)
+
+
+//Canvas 
+package com.example.newlab
+
+
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.os.Bundle
+import android.view.MotionEvent
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+
+
+class MainActivity : AppCompatActivity() {
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+
+        val canvasView = object : View(this) {
+            private val paint = Paint().apply {
+                color = Color.RED
+                style = Paint.Style.FILL
+            }
+            private var circleX = 0f
+            private var circleY = 0f
+            private var shouldDraw = false
+
+
+            override fun onDraw(canvas: Canvas) {
+                super.onDraw(canvas)
+                if (shouldDraw) {
+                    canvas.drawCircle(circleX, circleY, 100f, paint)
+                }
+            }
+
+
+            override fun onTouchEvent(event: MotionEvent): Boolean {
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    circleX = event.x
+                    circleY = event.y
+                    shouldDraw = true
+                    invalidate()
+                }
+                return true
+            }
+        }
+
+
+        setContentView(canvasView)
+    }
+}
+
+
+//Animation
+
+
+private fun animateButton() {
+   val fadeIn=ObjectAnimator.ofFloat(btn,"alpha",0f,1f)
+    fadeIn.duration=1000
+    val moveRight=ObjectAnimator.ofFloat(btn,"translationX",-300f,0f)
+    moveRight.duration=1000
+    val bounce=ObjectAnimator.ofFloat(btn,"translationY",0f,-30f,300f,0f)
+    bounce.duration=1000
+    val rotate=ObjectAnimator.ofFloat(btn,"rotation",0f,360f)
+    rotate.duration=500
+    val scaleX = ObjectAnimator.ofFloat(btn, "scaleX", 1f, 1.2f, 1f).apply {
+        duration = 300
+    }
+    val scaleY = ObjectAnimator.ofFloat(btn, "scaleY", 1f, 1.2f, 1f).apply {
+        duration = 300
+    }
+    val set=AnimatorSet()
+    set.playSequentially(
+        fadeIn,
+        moveRight,
+        bounce,
+        rotate,
+        scaleX,
+        scaleY
+    )
+    set.start()
+}
+//MIC
+val micBut = findViewById<Button>(R.id.btn2)
+    micBut.setOnClickListener {
+        // Check permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.RECORD_AUDIO),
+                1
+            )
+            return@setOnClickListener
+        }
+        val outputFile = File(filesDir, "audio.3gp")
+        mediaRecorder = MediaRecorder().apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+            setOutputFile(outputFile.absolutePath)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+            try {
+                prepare()
+                start()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(
+                    this@MainActivity,
+                    "Error starting recording",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+        }
+        Toast.makeText(this, "Recording started for 10 seconds", Toast.LENGTH_SHORT).show()
+        micBut.postDelayed({
+            try {
+                mediaRecorder.stop()
+                mediaRecorder.release()
+                Toast.makeText(this, "Recording stopped", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(this, "Error stopping recording", Toast.LENGTH_SHORT).show()
+            }
+        }, 10000)
+    }
+}
+
+
+//Bluetooth
+val btn = findViewById<Button>(R.id.btn1)
+btn.setOnClickListener {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13 and above
+        val intent = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
+        startActivity(intent)
+        Toast.makeText(this, "Go to Bluetooth settings to toggle Bluetooth", Toast.LENGTH_SHORT).show()
+    } else {
+        val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        if (bluetoothAdapter == null) {
+            Toast.makeText(this, "Bluetooth not supported on this device", Toast.LENGTH_SHORT).show()
+        } else {
+            if (bluetoothAdapter.isEnabled) {
+                bluetoothAdapter.disable()
+                Toast.makeText(this, "Bluetooth OFF", Toast.LENGTH_SHORT).show()
+            } else {
+                bluetoothAdapter.enable()
+                Toast.makeText(this, "Bluetooth ON", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+}
+
+
+//Wifi
+   val wifiBut = findViewById<Button>(R.id.btn2)
+    wifiBut.setOnClickListener {
+        // Check if the device is running Android 10 or higher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val intent = Intent(android.provider.Settings.ACTION_WIFI_SETTINGS)
+            startActivity(intent)
+            Toast.makeText(this, "Go to Wi-Fi settings to toggle Wi-Fi", Toast.LENGTH_SHORT)
+                .show()
+        } else {
+            // For devices running below Android 10, toggle Wi-Fi directly
+            val wifiManager =
+                applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            if (wifiManager.isWifiEnabled) {
+                wifiManager.isWifiEnabled = false
+                Toast.makeText(this, "WiFi OFF", Toast.LENGTH_SHORT).show()
+            } else {
+                wifiManager.isWifiEnabled = true
+                Toast.makeText(this, "WiFi ON", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+}
